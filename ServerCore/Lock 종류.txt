@@ -1,0 +1,13 @@
+﻿1. Lock 이 해제될 때까지 기다리기 - 멍때리기 (Spin Lock)
+	CPU 점유율이 급상승
+
+2. Lock 이 해제됐는지 랜덤하게 확인하기 (Context Switching)
+	2-1. Thread 소유권 포기
+	2-2. 나중에 다시 Lock 확인
+	2-3. 일정 시간동안 확인하도록 시간 부여
+	2-4. 시간이 만료되면 다시 Sleep - 다른 처리를 할수도 있음
+
+3. Observer(Event) 사용 (Auto Reset Event)
+	3-1. Thread 접근 시 Lock이 걸려있을 경우 Event 발생되도록 등록 - 다른 처리를 할 수도 있음
+	3-2. Lock이 해제되면 Observer는 접근 시도 Thread에게 통보함.
+	3-3. Thread 접근

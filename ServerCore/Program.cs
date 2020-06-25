@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,7 +58,7 @@ namespace ServerCore
 
     class Program
     {
-        
+
         static void Main(string[] args)
         {
             //ThreadTestRun_01();
@@ -68,8 +69,12 @@ namespace ServerCore
             //Interlocked_06();
             //MonitorLock_07();
             //Lock_08();
-            DeadLock_09();
+            //DeadLock_09();
+            SpinLock_10();
         }
+
+
+
 
         private static void ThreadTestRun_01()
         {
@@ -101,6 +106,10 @@ namespace ServerCore
             Console.WriteLine("스레드 종료!");
         }
 
+
+
+
+
         private static void TaskRun_02()
         {
             Task t = new Task(ThreadMain);
@@ -114,6 +123,10 @@ namespace ServerCore
             t.Wait(); // 끝날 때까지 기다린다.
             Console.WriteLine("종료 성공");
         }
+
+
+
+
 
         /** CPU Cache 테스트 */
         private static void CacheTest_03()
@@ -129,7 +142,7 @@ namespace ServerCore
                     for (int x = 0; x < 10000; x++)
                         arr[y, x] = 1;
                 long end = DateTime.Now.Ticks;
-                Console.WriteLine($"(y, x) 순서 걸린시간 {(end-now) / 1000}");
+                Console.WriteLine($"(y, x) 순서 걸린시간 {(end - now) / 1000}");
             }
 
             {
@@ -143,12 +156,16 @@ namespace ServerCore
                 Console.WriteLine($"(x, y) 순서 걸린시간 {(end - now) / 1000}");
             }
         }
-        
+
+
+
+
+
         static int x = 0;
         static int y = 0;
         static int r1 = 0;
         static int r2 = 0;
-        
+
         /*
          * 메모리 배리어
          * 1) 코드의 재배치 억체
@@ -162,7 +179,7 @@ namespace ServerCore
         private static void HardwareOptimization_04()
         {
             int count = 0;
-            
+
             while (true)
             {
                 count += 1;
@@ -198,6 +215,10 @@ namespace ServerCore
             r2 = y; // Load y
         }
 
+
+
+
+
         static int _answer;
         static bool _complate;
 
@@ -230,6 +251,10 @@ namespace ServerCore
                 Console.WriteLine(_answer);
             }
         }
+
+
+
+
 
         static int number = 0;
      
@@ -295,6 +320,9 @@ namespace ServerCore
             }
         }
 
+
+
+
         static int lockNumber = 0;
         static object _obj = new object();
 
@@ -355,6 +383,9 @@ namespace ServerCore
             }
         }
 
+
+
+
         private static void Lock_08()
         {
             Task t1 = new Task(ThreadLock_1);
@@ -393,9 +424,170 @@ namespace ServerCore
             }
         }
 
+
+
+
+
+        class SessionManager
+        {
+            static object _lock = new object();
+            public static void TestSession()
+            {
+                lock (_lock)
+                {
+                    Console.WriteLine("TestSession");
+                }
+            }
+
+            public static void Test()
+            {
+                lock (_lock)
+                {
+                    Console.WriteLine("SessionManager.Test");
+                    UserManager.TestUser();
+                }
+            }
+        }
+
+        class UserManager
+        {
+            static object _lock = new object();
+
+            public static void Test()
+            {
+                lock (_lock)
+                {
+                    Console.WriteLine("UserManager.Test");
+                    SessionManager.TestSession();
+                }
+            }
+
+            public static void TestUser()
+            {
+                lock (_lock)
+                {
+                    Console.WriteLine("TestUser");
+                }
+            }
+        }
+
         private static void DeadLock_09()
         {
+            Task t1 = new Task(ThreadDeadLock_1);
+            Task t2 = new Task(ThreadDeadLock_2);
+            t1.Start();
 
+            // 인스턴스 간의 종속적인 메소드 호출이 존재할 경우 DeadLock이 발생할 확률이 높다.
+            // Thread 시작시 각 Thread 실행 시점을 다르게 주면 DeadLock이 발생할 확률이 낮아진다.
+            Thread.Sleep(100);
+
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            Console.WriteLine(lockNumber);
+        }
+
+        private static void ThreadDeadLock_1()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                SessionManager.Test();
+            }
+        }
+        private static void ThreadDeadLock_2()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                UserManager.Test();
+            }
+        }
+
+
+
+        static int _num = 0;
+        static SpinLock _lock = new SpinLock();
+
+        class SpinLock
+        {
+            // Lock 상태
+            int _locked = 0;
+
+            // Lock
+            public void Acquire()
+            {
+                while (true)
+                {
+                    // 잠김이 풀리기를 기다린다.
+                    /*
+                     * int original = _locked;
+                     * locked = 1;
+                     * return original;
+                     * 
+                     * 잘 안씀 -> 현재 상태에 대한 값 비교가 없음.
+                     *           강제적인 변경이 필요할 때 사용.
+                     */
+                    //int original = Interlocked.Exchange(ref _locked, 1);
+
+                    /*
+                     * CAS (Compare-And-Swap)
+                     * 
+                     * CompareExchange를 많이 쓴다.
+                     * 
+                     * int original = _locked;
+                     * if (_locked == 0)
+                     *     locked = 1;
+                     * return original;
+                     */
+                    int expected = 0;
+                    int desired = 1;
+                    if (Interlocked.CompareExchange(ref _locked, desired, expected) == expected)
+                        break;
+                }
+
+            }
+
+            // Release
+            public void Release()
+            {
+                _locked = 0;
+            }
+        }
+
+        /*
+         * 면접에서 자주 나옴
+         * Lock이 풀릴 때 까지 대기
+         */
+        private static void SpinLock_10()
+        {
+            Task t1 = new Task(ThreadSpinLock_1);
+            Task t2 = new Task(ThreadSpinLock_2);
+            t1.Start();
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            // 왜 0이 안나오나?
+            Console.WriteLine(_num);
+        }
+
+        static void ThreadSpinLock_1()
+        {
+            for(int i = 0; i < 100000; i++)
+            {
+                _lock.Acquire();
+                _num++;
+                _lock.Release();
+            }
+        }
+        static void ThreadSpinLock_2()
+        {
+            for (int i = 0; i < 100000; i++)
+            {
+                _lock.Acquire();
+                _num--;
+                _lock.Release();
+            }
         }
     }
 }
