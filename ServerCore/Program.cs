@@ -63,7 +63,12 @@ namespace ServerCore
             //ThreadTestRun_01();
             //TaskRun_02();
             //CacheTest_03();
-            HardwareOptimization_04();
+            //HardwareOptimization_04();
+            //MemoryBarrier_05();
+            //Interlocked_06();
+            //MonitorLock_07();
+            //Lock_08();
+            DeadLock_09();
         }
 
         private static void ThreadTestRun_01()
@@ -193,6 +198,204 @@ namespace ServerCore
             r2 = y; // Load y
         }
 
+        static int _answer;
+        static bool _complate;
 
+        private static void MemoryBarrier_05()
+        {
+            Task t1 = new Task(MemoryBarrierA);
+            Task t2 = new Task(MemoryBarrierB);
+            t1.Start();
+            t2.Start();
+        }
+
+        private static void MemoryBarrierA()
+        {
+            _answer = 123; // Store
+            // Store Barrier;
+            Thread.MemoryBarrier(); // Barrier 1
+            _complate = true; // Store
+            // Store Barrier;
+            Thread.MemoryBarrier(); // Barrier 2
+        }
+
+        private static void MemoryBarrierB()
+        {
+            // Load Barrier
+            Thread.MemoryBarrier(); // Barrier 3
+            if (_complate)
+            {
+                // Load Barrier
+                Thread.MemoryBarrier(); // Barrier 4
+                Console.WriteLine(_answer);
+            }
+        }
+
+        static int number = 0;
+     
+        /**
+         * Race Condition (경합조건)
+         * Thread 들이 경합(선점)을 하며 공유된 자원을 각자 처리하게 되는 현상
+         *  Thread 우선순위에 따라 결과가 달라질 수 있다.
+         */
+        private static void Interlocked_06()
+        {
+            Task t1 = new Task(Thread_1);
+            Task t2 = new Task(Thread_2);
+            t1.Start();
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            /*
+            왜 0이 안나오지?
+            number++;
+                > Compiler 가 이해하는 코드 -> 여러 Thread가 동시 처리 할 경우 문제가 발생된다. -> Atomic 결여
+                > int temp = number;
+                > temp += 1;
+                > number = temp;
+                >> Interlocked.Increment(ref number);
+                >> Interlocked.Decrement(ref number);
+                >> 이제 0이 나온다.
+
+                Interlocked 이 실행 중이면 다른 Interlocked는 실행이 대기상태로 된다.
+                A(Interlocked) : 실행중 -> B(Interlocked) : 대기중
+                A(Interlocked) : 종료됨 -> B(Interlocked) : 실행중
+            */
+            Console.WriteLine(number);
+            
+        }
+        
+        private static void Thread_1()
+        {
+            // 10만번 더하기
+            for (int i = 0; i < 100000; i++)
+            {
+                // number++;
+                int afterValue = Interlocked.Increment(ref number); // 원자성을 보장한채로 1증가, 연산 비용이 비싸다
+                //int temp = number;
+                //temp += 1;
+                //number = temp;
+
+                Console.WriteLine(afterValue);
+            }
+        }
+        private static void Thread_2()
+        {
+            // 10만번 빼기
+            for (int i = 0; i < 100000; i++)
+            {
+                //number--;
+                int afterValue = Interlocked.Decrement(ref number); // 원자성을 보장한채로 1감소, 연산 비용이 비싸다
+                //int temp = number;
+                //temp -= 1;
+                //number = temp;
+
+                Console.WriteLine(afterValue);
+            }
+        }
+
+        static int lockNumber = 0;
+        static object _obj = new object();
+
+        private static void MonitorLock_07()
+        {
+            Task t1 = new Task(ThreadMonitorLock_1);
+            Task t2 = new Task(ThreadMonitorLock_2);
+            t1.Start();
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            Console.WriteLine(lockNumber);
+        }
+
+        private static void ThreadMonitorLock_1()
+        {
+            // 10만번 더하기
+            for (int i = 0; i < 100000; i++)
+            {
+                // 상호배제 : Mutual Exclusive
+                // Synchronized Start -> 동기처리 시작 (동일 오브젝트에 대해 잠금 아래 코드는 대기한다)
+                Monitor.Enter(_obj);
+                // Single Thread 처럼 동작
+                lockNumber++;
+
+                // ★★ Exit 전에 return을 하게 되면 잠금이 풀리지 않는다. (Dead Lock)
+                if ( lockNumber == 10000 )
+                {
+                    Monitor.Exit(_obj);
+                    return;
+                }
+                // Uncaught RuntimeException이 발생하면????????? DeadLock 발생
+                // > try/finally 로 처리해야함 -> 번거로움
+
+                // Synchronized End -> 동기처리 종료 (다른 오브젝트가 시작될 수 있다.)
+                Monitor.Exit(_obj);
+
+                // ★★ Monitor Enter / Exit의 범위가 커지면 문제가 생긴다.
+                // ★★ Exit 전에 return을 하게 되면 잠금이 풀리지 않는다. (Dead Lock)
+            }
+        }
+        private static void ThreadMonitorLock_2()
+        {
+            // 10만번 빼기
+            for (int i = 0; i < 100000; i++)
+            {
+                // 상호배제 : Mutual Exclusive
+                // Synchronized Start -> 동기처리 시작 (동일 오브젝트에 대해 잠금 아래 코드는 대기한다)
+                Monitor.Enter(_obj);
+                // Single Thread 처럼 동작
+                lockNumber--;
+                // Synchronized End -> 동기처리 종료 (다른 오브젝트가 시작될 수 있다.)
+                Monitor.Exit(_obj);
+
+                // ★★ Monitor Enter / Exit의 범위가 커지면 문제가 생긴다.
+                // ★★ Exit 전에 return을 하게 되면 잠금이 풀리지 않는다. (Dead Lock)
+            }
+        }
+
+        private static void Lock_08()
+        {
+            Task t1 = new Task(ThreadLock_1);
+            Task t2 = new Task(ThreadLock_2);
+            t1.Start();
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            Console.WriteLine(lockNumber);
+        }
+
+        private static void ThreadLock_1()
+        {
+            // 10만번 더하기
+            for (int i = 0; i < 100000; i++)
+            {
+                // MonitorLock 보다 더 직관적이고 간편하다.
+                // DeadLock 발생할 확률이 줄어준다.
+                lock (_obj) {
+                    number++;
+                }
+            }
+        }
+        private static void ThreadLock_2()
+        {
+            // 10만번 빼기
+            for (int i = 0; i < 100000; i++)
+            {
+                // MonitorLock 보다 더 직관적이고 간편하다.
+                // DeadLock 발생할 확률이 줄어준다.
+                lock (_obj)
+                {
+                    number--;
+                }
+            }
+        }
+
+        private static void DeadLock_09()
+        {
+
+        }
     }
 }
