@@ -7,7 +7,7 @@ namespace ServerCore
     class Program
     {
 
-        static void Main(string[] args)
+        static void study()
         {
             //new Study.BasicThread().run();
             //new Study.BasicTask().run();
@@ -22,10 +22,13 @@ namespace ServerCore
             //new Study.AutoResetEventTest().run();
             //new Study.MutexTest().run();
             //new Study.ReaderWriterLockTest().run();
-            new Study.ThreadLocalStorageTest().run();
+            //new Study.ThreadLocalStorageTest().run();
         }
 
-
+        static void Main(string[] args)
+        {
+            
+        }
 
     }
 }
