@@ -45,6 +45,9 @@ namespace ServerCore.Study
                     if (Interlocked.CompareExchange(ref _locked, desired, expected) == expected)
                         break;
 
+                    // 휴식을 가지지 않으면 SpinLock.
+                    // 휴식을 가지면 Context Switching?
+
                     // 무조건 기다리는것 X
                     // 적절히 휴식 O
                     /*

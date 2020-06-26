@@ -7,7 +7,15 @@
 	2-3. 일정 시간동안 확인하도록 시간 부여
 	2-4. 시간이 만료되면 다시 Sleep - 다른 처리를 할수도 있음
 
-3. Observer(Event) 사용 (Auto Reset Event)
+3. Observer(Event) 사용 (Auto Reset Event/Mutex)
 	3-1. Thread 접근 시 Lock이 걸려있을 경우 Event 발생되도록 등록 - 다른 처리를 할 수도 있음
 	3-2. Lock이 해제되면 Observer는 접근 시도 Thread에게 통보함.
 	3-3. Thread 접근
+
+4. ReaderWriterLock(RWLock)
+	높은 확률로 읽기(Load)만 사용하고 아주 희박한 확률로 쓰기(Write)를 한다면 RWLock을 사용한다.
+	ReaderLock은 WriteLock이 걸려있지 않다면 어떠한 Thread라도 접근이 가능하고 특별한? Thread가 접근시 독점할 수 있도록 한다.
+	WriterLock은 Lock이 걸린 순간 ReaderLock은 접근이 불가능하다. WriterLock은 재귀적 호출이 가능하다.
+		WriterLock -> WriterLock -> ReaderLock 같은 재귀 Lock이 가능하다.
+
+한 가지 Lock만 사용하지 않고 여러 방법을 혼합해서 사용한다.

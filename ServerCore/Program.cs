@@ -19,7 +19,9 @@ namespace ServerCore
             //new Study.LockTest().run();
             //new Study.DeadLockTest().run();
             //new Study.SpinLockTest().run();
-            new Study.AutoResetEventTest().run();
+            //new Study.AutoResetEventTest().run();
+            //new Study.MutexTest().run();
+            new Study.ReaderWriterLockTest().run();
         }
 
 
