@@ -21,7 +21,8 @@ namespace ServerCore
             //new Study.SpinLockTest().run();
             //new Study.AutoResetEventTest().run();
             //new Study.MutexTest().run();
-            new Study.ReaderWriterLockTest().run();
+            //new Study.ReaderWriterLockTest().run();
+            new Study.ThreadLocalStorageTest().run();
         }
 
 
