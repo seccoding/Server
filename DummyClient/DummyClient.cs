@@ -17,7 +17,7 @@ namespace DummyClient
             // Send Data
             for (int i = 0; i < 5; i++)
             {
-                byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello Server! {i}");
+                byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello Server!{i}");
                 this.Send(sendBuff);
             }
         }
@@ -27,10 +27,12 @@ namespace DummyClient
             Console.WriteLine($"OnDisconnected: {endPoint}");
         }
 
-        public override void OnRecv(ArraySegment<byte> buffer)
+        public override int OnRecv(ArraySegment<byte> buffer)
         {
             String recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
             Console.WriteLine($"[From Server] {recvData}");
+
+            return buffer.Count;
         }
 
         public override void OnSend(int numOfBytes)
