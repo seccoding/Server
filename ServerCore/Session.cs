@@ -86,10 +86,10 @@ namespace ServerCore
         }
         #endregion
 
-        Queue<byte[]> _sendQueue = new Queue<byte[]>(); // 데이터를 한번에 보내기위한 큐
+        Queue<ArraySegment<byte>> _sendQueue = new Queue<ArraySegment<byte>>(); // 데이터를 한번에 보내기위한 큐
         object _lock = new object();
 
-        public void Send(byte[] sendBuff)
+        public void Send(ArraySegment<byte> sendBuff)
         {
             lock (_lock) 
             {
@@ -107,8 +107,8 @@ namespace ServerCore
             // Queue에 쌓여있는 모든 Buffer를 한번에 모아 보낸다.
             while (_sendQueue.Count > 0) 
             {
-                byte[] buff = _sendQueue.Dequeue();
-                _pendingList.Add(new ArraySegment<byte>(buff, 0, buff.Length));
+                ArraySegment<byte> buff = _sendQueue.Dequeue();
+                _pendingList.Add(buff);
             }
 
             // Queue에 쌓여있는 모든 Buffer를 한번에 모아 보낸다.

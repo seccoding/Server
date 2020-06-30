@@ -8,40 +8,6 @@ using System.Threading;
 namespace DummyClient
 {
 
-    class GameSession : Session
-    {
-        public override void OnConnected(EndPoint endPoint)
-        {
-            Console.WriteLine($"OnConnected: {endPoint}");
-
-            // Send Data
-            for (int i = 0; i < 5; i++)
-            {
-                byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello Server!{i}");
-                this.Send(sendBuff);
-            }
-        }
-
-        public override void OnDisconnected(EndPoint endPoint)
-        {
-            Console.WriteLine($"OnDisconnected: {endPoint}");
-        }
-
-        public override int OnRecv(ArraySegment<byte> buffer)
-        {
-            String recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
-            Console.WriteLine($"[From Server] {recvData}");
-
-            return buffer.Count;
-        }
-
-        public override void OnSend(int numOfBytes)
-        {
-            Console.WriteLine($"Transferred bytes: {numOfBytes}");
-        }
-
-    }
-
     class DummyClient
     {
         static void Main(string[] args)
@@ -52,7 +18,7 @@ namespace DummyClient
             IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소
 
             Connector connector = new Connector();
-            connector.Connect(endPoint, () => new GameSession());
+            connector.Connect(endPoint, () => new ServerSession());
 
             while (true)
             {  
