@@ -8,6 +8,12 @@ using System.Threading;
 namespace DummyClient
 {
 
+    class Packet
+    {
+        public ushort size;
+        public ushort packetId;
+    }
+
     class DummyClient
     {
         static void Main(string[] args)

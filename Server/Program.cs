@@ -8,10 +8,10 @@ using ServerCore;
 namespace Server
 {
 
-    class Knight
+    class Packet
     {
-        public int hp;
-        public int attack;
+        public ushort size;
+        public ushort packetId;
     }
 
     class Server

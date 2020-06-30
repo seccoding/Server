@@ -15,7 +15,16 @@ namespace DummyClient
             // Send Data
             for (int i = 0; i < 5; i++)
             {
-                byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello Server!{i}");
+
+                Packet packet = new Packet() { size = 4, packetId = 7 };
+
+                ArraySegment<byte> openSegment = SendBufferHelper.Open(4096);
+                byte[] sizeBuffer = BitConverter.GetBytes(packet.size);
+                Array.Copy(sizeBuffer, 0, openSegment.Array, openSegment.Offset, sizeBuffer.Length);
+                byte[] packetIdBuffer = BitConverter.GetBytes(packet.packetId);
+                Array.Copy(packetIdBuffer, 0, openSegment.Array, openSegment.Offset + sizeBuffer.Length, packetIdBuffer.Length);
+                ArraySegment<byte> sendBuff = SendBufferHelper.Close(sizeBuffer.Length + packetIdBuffer.Length);
+
                 this.Send(sendBuff);
             }
         }
