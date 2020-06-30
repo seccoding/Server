@@ -8,12 +8,6 @@ using ServerCore;
 namespace Server
 {
 
-    class Packet
-    {
-        public ushort size;
-        public ushort packetId;
-    }
-
     class Server
     {
         static Listener _listener = new Listener();

@@ -26,7 +26,8 @@ namespace ServerCore
                     break;
 
                 // 모든 패킷이 완전하게 도착했는지 확인
-                // ToUInt16 : short 만큼 읽어 온다.
+                // ToUInt16 : ushort 만큼 읽어 온다.
+                // ToInt16  : short 만큼 읽어 온다.
                 ushort dataSize = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
 
                 // 버퍼의 크기와 데이터 사이즈가 다르면 Break
