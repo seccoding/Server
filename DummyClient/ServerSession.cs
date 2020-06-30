@@ -109,12 +109,6 @@ namespace DummyClient
 
             //string
             //C# (Default UTF-16)
-            //ushort nameLen = (ushort)Encoding.Unicode.GetByteCount(this.name); // string type의 byte 길이
-            //success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), nameLen);
-            //count += sizeof(ushort);
-            //Array.Copy(Encoding.Unicode.GetBytes(this.name), 0, segment.Array, count, nameLen);
-            //count += nameLen;
-
             // __abcd 데이터를 먼저 넣고 (데이터 개수가 들어갈 공간을 확보해둔다)
             ushort nameLen = (ushort) Encoding.Unicode.GetBytes(this.name, 0, this.name.Length, segment.Array, segment.Offset + count + sizeof(ushort));
             // 08abcd 사이즈를 나중에 넣는다.
