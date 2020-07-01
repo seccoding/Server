@@ -14,6 +14,9 @@ namespace Server
 
         static void Main(string[] args)
         {
+
+            PacketManager.Instance.Register();
+
             // DNS (Domain Name Server)
             string host = Dns.GetHostName(); // Local PC 의 Host Name
             IPHostEntry ipHost = Dns.GetHostEntry(host);

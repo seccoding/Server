@@ -1,13 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
-<!-- (PDL)Packet Definition List -->
+<!-- 
+(PDL)Packet Definition List
+PacketName 에 C_가 붙으면 Client -> Server (서버가 처리)
+              S_가 붙으면 Server -> Client (클라이언트가 처리)
+-->
 <PDL>
-  <packet name="PlayerInfoReq">
+  <packet name="C_PlayerInfoReq">
+    <byte name="testByte" />
     <long name="playerId" />
     <string name="name" />
     <list name="skill">
       <int name="id" />
       <short name="level" />
       <float name="duration" />
+      <list name="attribute">
+        <int name="att" />
+      </list>
     </list>
+  </packet>
+  <packet name="S_Test">
+    <int name="testInt" />
   </packet>
 </PDL>

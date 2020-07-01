@@ -8,6 +8,11 @@ namespace PacketGenerator
     {
 
         static string genPackets;
+        static ushort packetId;
+        static string packetEnums;
+
+        static string clientRegister;
+        static string serverRegister;
 
         static void Main(string[] args)
         {
@@ -17,9 +22,15 @@ namespace PacketGenerator
                 IgnoreWhitespace = true
             };
 
+            string pdlPath = "PDL.xml";
+            if ( args.Length >= 1 )
+            {
+                pdlPath = args[0];
+            }
+
             // using scope을 벗어나면 XmlReader.Dispose()가 자동 호출됨.
             // XmlReader.Dispose(); <- Resource Release
-            using (XmlReader r = XmlReader.Create("PDL.xml", settings))
+            using (XmlReader r = XmlReader.Create(pdlPath, settings))
             {
                 //Header 를 무시함. 
                 //곧바로 <packet>으로 이동함.
@@ -36,8 +47,16 @@ namespace PacketGenerator
                         ParsePacket(r);
                 }
 
-                File.WriteAllText("GenPackets.cs", genPackets);
+                string fileText = string.Format(PacketFormat.fileFormat, packetEnums, genPackets);
+                File.WriteAllText("GenPackets.cs", fileText);
+
+                string clientManagerText = string.Format(PacketFormat.managerFormat, clientRegister);
+                File.WriteAllText("ClientPacketManager.cs", clientManagerText);
+
+                string serverManagerText = string.Format(PacketFormat.managerFormat, serverRegister);
+                File.WriteAllText("ServerPacketManager.cs", serverManagerText);
             }
+
 
         }
 
@@ -62,6 +81,12 @@ namespace PacketGenerator
             Tuple<string, string, string> t = ParseMembers(r);
             genPackets += string.Format(PacketFormat.packetFormat
                             , packetName , t.Item1 , t.Item2, t.Item3);
+            packetEnums += string.Format(PacketFormat.packetEnumFormat, packetName, ++packetId) + Environment.NewLine + "\t";
+            
+            if ( packetName.StartsWith("S_") || packetName.StartsWith("_s") )
+                clientRegister += string.Format(PacketFormat.managerRegisterFormat, packetName) + Environment.NewLine;
+            else
+                serverRegister += string.Format(PacketFormat.managerRegisterFormat, packetName) + Environment.NewLine;
         }
 
         // {1} 멤버 변수들
@@ -101,6 +126,12 @@ namespace PacketGenerator
                 string memberType = r.Name.ToLower();
                 switch (memberType)
                 {
+                    case "byte":
+                    case "sbyte":
+                        memberCode += string.Format(PacketFormat.memberFormat, memberType, memberName);
+                        readCode += string.Format(PacketFormat.readByteFormat, memberName, memberType);
+                        writeCode += string.Format(PacketFormat.writeByteFormat, memberName, memberType);
+                        break;
                     case "bool":
                     case "short":
                     case "ushort":
