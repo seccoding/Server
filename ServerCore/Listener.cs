@@ -11,40 +11,35 @@ namespace ServerCore
         Socket _listenSocket;
         Func<Session> _sessionFactory;
 
-        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory)
+        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory, int register = 10, int backlog = 100)
         {
             _listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             // Pipe Endpoint 설정
             _listenSocket.Bind(endPoint);
             // 최대 대기 수
-            _listenSocket.Listen(10);
+            // 이 이상으로 접속시 다 튕겨낸다.
+            _listenSocket.Listen(backlog);
 
             // Inject Session
             _sessionFactory = sessionFactory;
 
-            // 한번 생성하면 재사용이 가능한 어마어마한 장점이 있다.
-            // 모든 소켓 비동기 작업은 'SocketAsyncEventArgs'를 통해 이벤트 단위로 처리되기 때문에 코드 추적이 간단하다.
-            // 1. Client 연결 정보가 들어있다.
-            // 2. 필요할 때마다 메시지를 전달해준다.
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-
-            // 접속 성공시 OnAcceptCompleted를 Callback으로 처리할 수 있도록 해준다.
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
-
-            // 최조 한번 Accept 시도를 하도록 한다.
-            // 클라이언트에서 접속시 OnAcceptCompleted 가 실행된다.
-            RegisterAccept(args);
-
-            /*
-             * User가 많이 모여 Event 처리가 오래 걸리거나 StackOverFlow 가 발생한다면
-             * 아래코드처럼 EventHandler를 여러개 만들어 두면 된다.
-            for (int i = 0; i < 10; i++)
+            // User가 많이 모여 Event 처리가 오래 걸리거나 StackOverFlow 가 발생한다면
+            // 아래코드처럼 EventHandler를 여러개 만들어 두면 된다.
+            for (int i = 0; i < register; i++)
             {
+                // 한번 생성하면 재사용이 가능한 어마어마한 장점이 있다.
+                // 모든 소켓 비동기 작업은 'SocketAsyncEventArgs'를 통해 이벤트 단위로 처리되기 때문에 코드 추적이 간단하다.
+                // 1. Client 연결 정보가 들어있다.
+                // 2. 필요할 때마다 메시지를 전달해준다.
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+
+                // 접속 성공시 OnAcceptCompleted를 Callback으로 처리할 수 있도록 해준다.
                 args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
+
+                // 최조 한번 Accept 시도를 하도록 한다.
+                // 클라이언트에서 접속시 OnAcceptCompleted 가 실행된다.
                 RegisterAccept(args);
             }
-            */
         }
 
         void RegisterAccept(SocketAsyncEventArgs args)

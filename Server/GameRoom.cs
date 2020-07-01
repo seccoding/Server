@@ -5,10 +5,15 @@ using System.Text;
 
 namespace Server
 {
-    class GameRoom
+    class GameRoom : IJobQueue
     {
         List<ClientSession> _sessions = new List<ClientSession>();
-        object _lock = new object();
+        JobQueue _jobQueue = new JobQueue();
+
+        public void Push(Action job)
+        {
+            _jobQueue.Push(job);
+        }
 
         public void Broadcast(ClientSession clientSession, string chat)
         {
@@ -18,28 +23,20 @@ namespace Server
 
             ArraySegment<byte> segment = packet.Write();
 
-            lock (_lock)
-            {
-                foreach (ClientSession session in _sessions)
-                    session.Send(segment);
-            }
+            foreach (ClientSession session in _sessions)
+                session.Send(segment);
         }
 
         public void Enter(ClientSession session)
         {
-            lock (_lock)
-            {
-                _sessions.Add(session);
-                session.Room = this;
-            }
+            _sessions.Add(session);
+            session.Room = this;
         }
 
         public void Leave(ClientSession session)
         {
-            lock (_lock)
-            {
-                _sessions.Remove(session);
-            }
+             _sessions.Remove(session);
         }
+
     }
 }
