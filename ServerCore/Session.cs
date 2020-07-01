@@ -18,6 +18,7 @@ namespace ServerCore
         {
             // 전체 패킷 크기
             int processLen = 0;
+            int packetCount = 0;
 
             while (true)
             {
@@ -36,6 +37,7 @@ namespace ServerCore
                 
                 // 지금부터 패킷 조립 가능
                 OnRecvPacket(new ArraySegment<byte>(buffer.Array, buffer.Offset, dataSize));
+                packetCount++;
 
                 // 다음 패킷을 분리한다.
                 buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize);
@@ -43,6 +45,8 @@ namespace ServerCore
                 processLen += dataSize;
             }
 
+            if (packetCount > 1)
+                Console.WriteLine($"패킷 모아보내기 : {packetCount}");
             return processLen;
         }
 
@@ -58,7 +62,7 @@ namespace ServerCore
         public abstract void OnSend(int numOfBytes);
         public abstract void OnDisconnected(EndPoint endPoint);
 
-        RecvBuffer _recvBuffer = new RecvBuffer(1024);
+        RecvBuffer _recvBuffer = new RecvBuffer(short.MaxValue);
 
         Socket _socket;
         SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
@@ -151,6 +155,21 @@ namespace ServerCore
 
         Queue<ArraySegment<byte>> _sendQueue = new Queue<ArraySegment<byte>>(); // 데이터를 한번에 보내기위한 큐
         object _lock = new object();
+
+        public void Send(List<ArraySegment<byte>> sendBuffList)
+        {
+            if (sendBuffList.Count == 0)
+                return;
+
+            lock (_lock)
+            {
+                foreach (ArraySegment<byte> sendBuff in sendBuffList)
+                    _sendQueue.Enqueue(sendBuff);
+
+                if (_pendingList.Count == 0)
+                    RegisterSend();
+            }
+        }
 
         public void Send(ArraySegment<byte> sendBuff)
         {
