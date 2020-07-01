@@ -13,20 +13,24 @@ namespace ServerCore
     public class Connector
     {
         Func<Session> _sessionFactory;
-        public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory)
+        public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory, int count = 1)
         {
-            // 연결 Pipe 생성
-            Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            _sessionFactory = sessionFactory;
+            for (int i = 0; i < count; i++)
+            {
+                // 연결 Pipe 생성
+                Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnectedComplete);
-            // 상대방의 주소?
-            args.RemoteEndPoint = endPoint;
-            args.UserToken = socket;
+                _sessionFactory = sessionFactory;
 
-            RegisterConnect(args);
+                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnectedComplete);
+                // 상대방의 주소?
+                args.RemoteEndPoint = endPoint;
+                args.UserToken = socket;
+
+                RegisterConnect(args);
+            }
         }
 
         void RegisterConnect(SocketAsyncEventArgs args)

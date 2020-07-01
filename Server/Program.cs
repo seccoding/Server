@@ -11,12 +11,10 @@ namespace Server
     class Server
     {
         static Listener _listener = new Listener();
+        public static GameRoom Room = new GameRoom();
 
         static void Main(string[] args)
         {
-
-            PacketManager.Instance.Register();
-
             // DNS (Domain Name Server)
             string host = Dns.GetHostName(); // Local PC 의 Host Name
             IPHostEntry ipHost = Dns.GetHostEntry(host);
@@ -24,7 +22,7 @@ namespace Server
             IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소
 
             // 연결 Pipe 생성
-            _listener.Init(endPoint, () => new ClientSession());
+            _listener.Init(endPoint, () => SessionManager.Instance.Generate<ClientSession>());
             Console.WriteLine("Listening...");
 
             while (true) { }

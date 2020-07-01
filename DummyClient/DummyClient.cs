@@ -18,19 +18,20 @@ namespace DummyClient
             IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소
 
             Connector connector = new Connector();
-            connector.Connect(endPoint, () => new ServerSession());
+            connector.Connect(endPoint, () => SessionManager.Instance.Generate(), 10);
 
             while (true)
             {  
                 try
                 {
+                    SessionManager.Instance.SendForEach();
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(250);
             }
         }
     }

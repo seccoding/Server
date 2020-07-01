@@ -73,20 +73,22 @@ namespace PacketGenerator
 
             string usage = r["usage"];
             string packetName = r["name"];
+
             if (string.IsNullOrEmpty(packetName))
             {
                 Console.WriteLine("Packet without name");
                 return;
             }
+            if (string.IsNullOrEmpty(usage))
+            {
+                Console.WriteLine("Packet without usage");
+                return;
+            }
 
             Tuple<string, string, string> t = ParseMembers(r);
-            genPackets += string.Format(PacketFormat.packetFormat
-                            , packetName , t.Item1 , t.Item2, t.Item3);
+            genPackets += string.Format(PacketFormat.packetFormat, packetName , t.Item1 , t.Item2, t.Item3);
             packetEnums += string.Format(PacketFormat.packetEnumFormat, packetName, ++packetId) + Environment.NewLine + "\t";
 
-            
-            
-            Console.WriteLine($"{r.AttributeCount}, packetName: {packetName}, usage : {usage}");
             if (usage.ToLower() == "server" )
                 clientRegister += string.Format(PacketFormat.managerRegisterFormat, packetName) + Environment.NewLine;
             else

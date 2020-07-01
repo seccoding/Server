@@ -51,6 +51,8 @@ namespace ServerCore
 
     public abstract class Session
     {
+        public int SessionId { get; set; }
+
         public abstract void OnConnected(EndPoint endPoint);
         public abstract int OnRecv(ArraySegment<byte> buffer);
         public abstract void OnSend(int numOfBytes);
@@ -61,6 +63,15 @@ namespace ServerCore
         Socket _socket;
         SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
         SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
+
+        void Clear()
+        {
+            lock (_lock)
+            {
+                _sendQueue.Clear();
+                _pendingList.Clear();
+            }
+        }
 
         public void Start(Socket socket)
         {
@@ -75,13 +86,24 @@ namespace ServerCore
         #region Receive 네트워크 통신
         void RegisterRecv()
         {
+            if (_disconnect == 1)
+                return;
+
             _recvBuffer.Clean();
             ArraySegment<byte> segment = _recvBuffer.WriteSegment;
             _recvArgs.SetBuffer(segment.Array, segment.Offset, segment.Count);
 
-            bool pending = _socket.ReceiveAsync(_recvArgs);
-            if (pending == false)
-                OnRecvCompleted(null, _recvArgs);
+            try 
+            {
+                bool pending = _socket.ReceiveAsync(_recvArgs);
+                if (pending == false)
+                    OnRecvCompleted(null, _recvArgs);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"RegisterRecv Failed. {e}");
+            }
+            
         }
 
         void OnRecvCompleted(object sender, SocketAsyncEventArgs args)
@@ -145,6 +167,9 @@ namespace ServerCore
 
         void RegisterSend()
         {
+            if (_disconnect == 1)
+                return;
+
             // Queue에 쌓여있는 모든 Buffer를 한번에 모아 보낸다.
             while (_sendQueue.Count > 0) 
             {
@@ -155,9 +180,16 @@ namespace ServerCore
             // Queue에 쌓여있는 모든 Buffer를 한번에 모아 보낸다.
             _sendArgs.BufferList = _pendingList;
 
-            bool pending = _socket.SendAsync(_sendArgs);
-            if (pending == false)
-                OnSendCompleted(null, _sendArgs);
+            try
+            {
+                bool pending = _socket.SendAsync(_sendArgs);
+                if (pending == false)
+                    OnSendCompleted(null, _sendArgs);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"RegisterSend Failed. {e}"); ;
+            }
         }
 
         /**
@@ -207,7 +239,8 @@ namespace ServerCore
             // 최초로 Disconnect가 되었다.
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
-            
+
+            Clear();
         }
         #endregion
     }

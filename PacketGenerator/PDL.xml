@@ -5,20 +5,11 @@ PacketName 에 C_가 붙으면 Client -> Server (서버가 처리)
               S_가 붙으면 Server -> Client (클라이언트가 처리)
 -->
 <PDL>
-  <packet name="PlayerInfoReq" usage="Client">
-    <byte name="testByte" />
-    <long name="playerId" />
-    <string name="name" />
-    <list name="skill">
-      <int name="id" />
-      <short name="level" />
-      <float name="duration" />
-      <list name="attribute">
-        <int name="att" />
-      </list>
-    </list>
+  <packet name="ClientChat" usage="Client">
+    <string name="chat" />
   </packet>
-  <packet name="Test" usage="Server">
-    <int name="testInt" />
+  <packet name="ServerChat" usage="Server">
+    <int name="playerId" />
+    <string name="chat"/>
   </packet>
 </PDL>
