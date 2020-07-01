@@ -6,8 +6,8 @@ using System.Text;
 
 public enum PacketID
 {
-    C_PlayerInfoReq = 1,
-	S_Test = 2,
+    PlayerInfoReq = 1,
+	Test = 2,
 	
 }
 
@@ -18,7 +18,7 @@ interface IPacket
 	ArraySegment<byte> Write();
 }
 
-class C_PlayerInfoReq : IPacket
+class PlayerInfoReq : IPacket
 {
     public byte testByte;
 	public long playerId;
@@ -85,7 +85,7 @@ class C_PlayerInfoReq : IPacket
 	}
 	public List<Skill> skills = new List<Skill>();
 
-    public ushort Protocol { get { return (ushort) PacketID.C_PlayerInfoReq; } }
+    public ushort Protocol { get { return (ushort) PacketID.PlayerInfoReq; } }
 
     public void Read(ArraySegment<byte> segment)
     {
@@ -122,7 +122,7 @@ class C_PlayerInfoReq : IPacket
         Span<byte> s = new Span<byte>(segment.Array, segment.Offset, segment.Count);
 
         count += sizeof(ushort);
-        success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), (ushort) PacketID.C_PlayerInfoReq);
+        success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), (ushort) PacketID.PlayerInfoReq);
         count += sizeof(ushort);
         segment.Array[segment.Offset + count] = (byte) this.testByte;
 		count += sizeof(byte);
@@ -142,11 +142,11 @@ class C_PlayerInfoReq : IPacket
         return SendBufferHelper.Close(count);
     }
 }
-class S_Test : IPacket
+class Test : IPacket
 {
     public int testInt;
 
-    public ushort Protocol { get { return (ushort) PacketID.S_Test; } }
+    public ushort Protocol { get { return (ushort) PacketID.Test; } }
 
     public void Read(ArraySegment<byte> segment)
     {
@@ -168,7 +168,7 @@ class S_Test : IPacket
         Span<byte> s = new Span<byte>(segment.Array, segment.Offset, segment.Count);
 
         count += sizeof(ushort);
-        success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), (ushort) PacketID.S_Test);
+        success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), (ushort) PacketID.Test);
         count += sizeof(ushort);
         success &= BitConverter.TryWriteBytes(s.Slice(count, s.Length - count), this.testInt);
 		count += sizeof(int);

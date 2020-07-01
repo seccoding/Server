@@ -71,6 +71,7 @@ namespace PacketGenerator
                 return;
             }
 
+            string usage = r["usage"];
             string packetName = r["name"];
             if (string.IsNullOrEmpty(packetName))
             {
@@ -82,8 +83,11 @@ namespace PacketGenerator
             genPackets += string.Format(PacketFormat.packetFormat
                             , packetName , t.Item1 , t.Item2, t.Item3);
             packetEnums += string.Format(PacketFormat.packetEnumFormat, packetName, ++packetId) + Environment.NewLine + "\t";
+
             
-            if ( packetName.StartsWith("S_") || packetName.StartsWith("_s") )
+            
+            Console.WriteLine($"{r.AttributeCount}, packetName: {packetName}, usage : {usage}");
+            if (usage.ToLower() == "server" )
                 clientRegister += string.Format(PacketFormat.managerRegisterFormat, packetName) + Environment.NewLine;
             else
                 serverRegister += string.Format(PacketFormat.managerRegisterFormat, packetName) + Environment.NewLine;

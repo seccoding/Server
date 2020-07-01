@@ -5,7 +5,7 @@ PacketName 에 C_가 붙으면 Client -> Server (서버가 처리)
               S_가 붙으면 Server -> Client (클라이언트가 처리)
 -->
 <PDL>
-  <packet name="C_PlayerInfoReq">
+  <packet name="PlayerInfoReq" usage="Client">
     <byte name="testByte" />
     <long name="playerId" />
     <string name="name" />
@@ -18,7 +18,7 @@ PacketName 에 C_가 붙으면 Client -> Server (서버가 처리)
       </list>
     </list>
   </packet>
-  <packet name="S_Test">
+  <packet name="Test" usage="Server">
     <int name="testInt" />
   </packet>
 </PDL>
