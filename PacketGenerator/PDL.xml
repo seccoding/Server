@@ -7,6 +7,9 @@ usage="Server" : Server -> Client (클라이언트가 처리)
 <PDL>
   <packet name="ClientChat" usage="Client">
     <string name="chat" />
+    <class name="Test">
+      <string name="testName" />
+    </class>
   </packet>
   <packet name="ServerChat" usage="Server">
     <int name="playerId" />

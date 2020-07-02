@@ -10,8 +10,9 @@ namespace PacketGenerator
         enum Param
         {
             PDL = 0,
-            Client = 1,
+            DummyClient = 1,
             Server = 2,
+            Client = 3,
         }
 
         static string genPackets;
@@ -64,8 +65,14 @@ namespace PacketGenerator
                 File.WriteAllText("ServerPacketManager.cs", serverManagerText);
 
                 PacketCopy("GenPackets.cs", args);
-                PacketManagerCopy("ClientPacketManager.cs", args[(int) Param.Client]);
+                PacketManagerCopy("ClientPacketManager.cs", args[(int) Param.DummyClient]);
                 PacketManagerCopy("ServerPacketManager.cs", args[(int) Param.Server]);
+                
+                if ( (args.Length - 1) == (int) Param.Client)
+                {
+                    PacketCopy("GenPackets.cs", args[(int) Param.Client]);
+                    PacketManagerCopy("ClientPacketManager.cs", args[(int) Param.Client]);
+                }
 
                 File.Delete("GenPackets.cs");
                 File.Delete("ClientPacketManager.cs");
@@ -80,8 +87,14 @@ namespace PacketGenerator
 
             for (int i = 1; i < args.Length; i++)
             {
+                PacketCopy(fileName, args[i]);
                 File.Copy(fileName, $"{args[i]}/{fileName}", true);
             }
+        }
+
+        public static void PacketCopy(string fileName, string path)
+        {
+            File.Copy(fileName, $"{path}/{fileName}", true);
         }
 
         public static void PacketManagerCopy(string fileName, string path)
