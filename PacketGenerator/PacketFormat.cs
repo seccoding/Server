@@ -12,7 +12,7 @@ namespace PacketGenerator
 using System;
 using System.Collections.Generic;
 
-class PacketManager
+public class PacketManager
 {{
     #region Singleton
     static PacketManager _instance = new PacketManager();
@@ -219,7 +219,7 @@ count += sizeof(ushort);
 for ( int i = 0; i < {1}Len; i++ )
 {{
     {0} {1} = new {0}();
-    {1}.Read(s, ref count);
+    {1}.Read(segment, ref count);
     {1}s.Add({1});
 }}";
 

@@ -6,18 +6,28 @@ using System.Text;
 
 class PacketHandler
 {
-    public static void ClientChatHandler(PacketSession session, IPacket packet)
+    public static void LeaveGameHandler(PacketSession session, IPacket packet)
     {
-        ClientChat chatPacket = packet as ClientChat;
         ClientSession clientSession = session as ClientSession;
 
         if (clientSession.Room == null)
             return;
 
         GameRoom room = clientSession.Room;
-        room.Push(
-            () => room.Broadcast(clientSession, chatPacket.chat)
-        );
+        room.Push(() => room.Leave(clientSession));
     }
-    
+
+    public static void MoveHandler(PacketSession session, IPacket packet)
+    {
+        Move movePacket = packet as Move;
+        ClientSession clientSession = session as ClientSession;
+
+        if (clientSession.Room == null)
+            return;
+
+        Console.WriteLine($"{movePacket.posX} / {movePacket.posY} / {movePacket.posZ}");
+
+        GameRoom room = clientSession.Room;
+        room.Push(() => room.Move(clientSession, movePacket));
+    }
 }

@@ -5,14 +5,52 @@ usage="Client" : Client -> Server (서버가 처리)
 usage="Server" : Server -> Client (클라이언트가 처리)
 -->
 <PDL>
-  <packet name="ClientChat" usage="Client">
-    <string name="chat" />
-    <class name="Test">
-      <string name="testName" />
+  <!-- 사용자가 게임에 접속함을 알림 -->
+  <packet name="BroadcastEnterGame" usage="Server">
+    <int name="playerId" />
+    <class name="Position">
+      <float name="posX" />
+      <float name="posY" />
+      <float name="posZ" />
     </class>
   </packet>
-  <packet name="ServerChat" usage="Server">
+
+  <!-- 사용자가 게임을 떠남 -->
+  <packet name="LeaveGame" usage="Client">
+  </packet>
+
+  <!-- 사용자가 게임을 떠난것을 알림 -->
+  <packet name="BroadcastLeaveGame" usage="Server">
     <int name="playerId" />
-    <string name="chat"/>
+  </packet>
+
+  <!-- 게임 접속자 정보 -->
+  <packet name="PlayerList" usage="Server">
+    <list name="player">
+      <bool name="isSelf" />
+      <int name="playerId" />
+      <class name="Position">
+        <float name="posX" />
+        <float name="posY" />
+        <float name="posZ" />
+      </class>
+    </list>
+  </packet>
+
+  <!-- 움직인다. -->
+  <packet name="Move" usage="Client">
+    <float name="posX" />
+    <float name="posY" />
+    <float name="posZ" />
+  </packet>
+
+  <!-- 누군가가 움직인다는 것을 알린다. -->
+  <packet name="BroadcastMove" usage="Server">
+    <int name="playerId" />
+    <class name="Position">
+      <float name="posX" />
+      <float name="posY" />
+      <float name="posZ" />
+    </class>
   </packet>
 </PDL>

@@ -10,7 +10,7 @@ namespace DummyClient
 
         List<ServerSession> _sessions = new List<ServerSession>();
         object _lock = new object();
-
+        Random _rand = new Random();
         public ServerSession Generate()
         {
             lock (_lock)
@@ -27,11 +27,12 @@ namespace DummyClient
             {
                 foreach(ServerSession session in _sessions)
                 {
-                    ClientChat chatPacket = new ClientChat();
-                    chatPacket.chat = $"Hello Server !";
-                    ArraySegment<byte> segment = chatPacket.Write();
+                    Move movePacket = new Move();
+                    movePacket.posX = _rand.Next(-50, 50);
+                    movePacket.posY = _rand.Next(-50, 50); ;
+                    movePacket.posZ = _rand.Next(-50, 50); ;
 
-                    session.Send(segment);
+                    session.Send(movePacket.Write());
                 }
             }
         }

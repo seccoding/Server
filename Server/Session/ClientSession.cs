@@ -8,10 +8,20 @@ using System.Threading;
 
 namespace Server
 {
-
+    /*
+     * Player 클래스가 ClientSession을 가지는 것이 더 좋다.
+     * 지금은 그냥 구현
+     */
     class ClientSession : PacketSession
     {
         public GameRoom Room { get; set; }
+
+        // 나중에 Player로 옮겨야 할 변수들
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        // 나중에 Player로 옮겨야 할 변수들
+
 
         public override void OnConnected(EndPoint endPoint)
         {
