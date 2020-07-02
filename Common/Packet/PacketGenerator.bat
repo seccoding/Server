@@ -1,5 +1,5 @@
 REM PacketGenerator 실행
-START ../../PacketGenerator/bin/PacketGenerator.exe ../../PacketGenerator/PDL.xml ../../DummyClient/Packet ../../Server/Packet
+START ../../PacketGenerator/bin/PacketGenerator.exe ../../PacketGenerator/PDL.xml ../../DummyClient/Packet ../../Server/Packet ../../Client/Assets/Scripts/Packet
 
 REM GenPackets.cs 복사
 REM XCOPY /Y *.cs "../../DummyClient/Packet"
