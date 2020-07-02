@@ -21,7 +21,31 @@ interface IPacket
 class ClientChat : IPacket
 {
     public string chat;
+	public class Test
+	{
+	    public string testName;
 	
+	    public void Read(ArraySegment<byte> segment, ref ushort count)
+	    {
+	        ushort testNameLen = BitConverter.ToUInt16(segment.Array, segment.Offset + count);
+			count += sizeof(ushort);
+			this.testName = Encoding.Unicode.GetString(segment.Array, segment.Offset + count, testNameLen);
+			count += testNameLen;
+	    }
+	
+	    public bool Write(ArraySegment<byte> segment, ref ushort count)
+	    {
+	        bool success = true;
+	        if (this.testName == null)
+			    this.testName = "";
+			ushort testNameLen = (ushort) Encoding.Unicode.GetBytes(this.testName, 0, this.testName.Length, segment.Array, segment.Offset + count + sizeof(ushort));
+			Array.Copy(BitConverter.GetBytes(testNameLen), 0, segment.Array, segment.Offset + count, sizeof(ushort));
+			count += sizeof(ushort);
+			count += testNameLen;
+	        return success;
+	    }
+	}
+	public Test test = new Test();
 
     public ushort Protocol { get { return (ushort) PacketID.ClientChat; } }
 
@@ -34,7 +58,9 @@ class ClientChat : IPacket
 		count += sizeof(ushort);
 		this.chat = Encoding.Unicode.GetString(segment.Array, segment.Offset + count, chatLen);
 		count += chatLen;
-		
+		if (test == null)
+		    test = new Test();
+		test.Read(segment, ref count);
     }
 
     public ArraySegment<byte> Write()
@@ -45,11 +71,15 @@ class ClientChat : IPacket
         count += sizeof(ushort);
         Array.Copy(BitConverter.GetBytes((ushort) PacketID.ClientChat), 0, segment.Array, segment.Offset + count, sizeof(ushort));
         count += sizeof(ushort);
-        ushort chatLen = (ushort) Encoding.Unicode.GetBytes(this.chat, 0, this.chat.Length, segment.Array, segment.Offset + count + sizeof(ushort));
+        if (this.chat == null)
+		    this.chat = "";
+		ushort chatLen = (ushort) Encoding.Unicode.GetBytes(this.chat, 0, this.chat.Length, segment.Array, segment.Offset + count + sizeof(ushort));
 		Array.Copy(BitConverter.GetBytes(chatLen), 0, segment.Array, segment.Offset + count, sizeof(ushort));
 		count += sizeof(ushort);
 		count += chatLen;
-		
+		if (test == null)
+		    test = new Test();
+		test.Write(segment, ref count);
         
         Array.Copy(BitConverter.GetBytes(count), 0, segment.Array, segment.Offset, sizeof(ushort));
 
@@ -86,6 +116,8 @@ class ServerChat : IPacket
         count += sizeof(ushort);
         Array.Copy(BitConverter.GetBytes(playerId), 0, segment.Array, segment.Offset + count, sizeof(int));
 		count += sizeof(int);
+		if (this.chat == null)
+		    this.chat = "";
 		ushort chatLen = (ushort) Encoding.Unicode.GetBytes(this.chat, 0, this.chat.Length, segment.Array, segment.Offset + count + sizeof(ushort));
 		Array.Copy(BitConverter.GetBytes(chatLen), 0, segment.Array, segment.Offset + count, sizeof(ushort));
 		count += sizeof(ushort);

@@ -174,6 +174,14 @@ namespace PacketGenerator
                 string memberType = r.Name.ToLower();
                 switch (memberType)
                 {
+                    case "class":
+                        {
+                            Tuple<string, string, string> t = ParseClass(r);
+                            memberCode += t.Item1;
+                            readCode += t.Item2;
+                            writeCode += t.Item3;
+                        }
+                        break;
                     case "byte":
                     case "sbyte":
                         memberCode += string.Format(PacketFormat.memberFormat, memberType, memberName);
@@ -197,10 +205,12 @@ namespace PacketGenerator
                         writeCode += string.Format(PacketFormat.writeStringFormat, memberName);
                         break;
                     case "list":
-                        Tuple<string, string, string> t = ParseList(r);
-                        memberCode += t.Item1;
-                        readCode += t.Item2;
-                        writeCode += t.Item3;
+                        {
+                            Tuple<string, string, string> t = ParseList(r);
+                            memberCode += t.Item1;
+                            readCode += t.Item2;
+                            writeCode += t.Item3;
+                        }
                         break;
                     default:
                         break;
@@ -237,6 +247,33 @@ namespace PacketGenerator
             string writeCode = string.Format(PacketFormat.writeListFormat
                                     , FirstCharToUpper(listName)
                                     , FirstCharToLower(listName));
+
+            return new Tuple<string, string, string>(memberCode, readCode, writeCode);
+        }
+
+        public static Tuple<string, string, string> ParseClass(XmlReader r)
+        {
+            string className = r["name"];
+            if (string.IsNullOrEmpty(className))
+            {
+                Console.WriteLine("Class without name");
+                return null;
+            }
+
+            Tuple<string, string, string> t = ParseMembers(r);
+
+            string memberCode = string.Format(PacketFormat.memberClassFormat
+                                    , FirstCharToUpper(className)
+                                    , FirstCharToLower(className)
+                                    , t.Item1, t.Item2, t.Item3);
+
+            string readCode = string.Format(PacketFormat.readClassFormat
+                                    , FirstCharToUpper(className)
+                                    , FirstCharToLower(className));
+
+            string writeCode = string.Format(PacketFormat.writeClassFormat
+                                    , FirstCharToUpper(className)
+                                    , FirstCharToLower(className));
 
             return new Tuple<string, string, string>(memberCode, readCode, writeCode);
         }
