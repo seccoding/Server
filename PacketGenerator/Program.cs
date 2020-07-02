@@ -4,8 +4,15 @@ using System.Xml;
 
 namespace PacketGenerator
 {
+    
     class Program
     {
+        enum Param
+        {
+            PDL = 0,
+            Client = 1,
+            Server = 2,
+        }
 
         static string genPackets;
         static ushort packetId;
@@ -49,14 +56,37 @@ namespace PacketGenerator
 
                 string fileText = string.Format(PacketFormat.fileFormat, packetEnums, genPackets);
                 File.WriteAllText("GenPackets.cs", fileText);
-
+                
                 string clientManagerText = string.Format(PacketFormat.managerFormat, clientRegister);
                 File.WriteAllText("ClientPacketManager.cs", clientManagerText);
-
+                
                 string serverManagerText = string.Format(PacketFormat.managerFormat, serverRegister);
                 File.WriteAllText("ServerPacketManager.cs", serverManagerText);
-            }
 
+                PacketCopy("GenPackets.cs", args);
+                PacketManagerCopy("ClientPacketManager.cs", args[(int) Param.Client]);
+                PacketManagerCopy("ServerPacketManager.cs", args[(int) Param.Server]);
+
+                File.Delete("GenPackets.cs");
+                File.Delete("ClientPacketManager.cs");
+                File.Delete("ServerPacketManager.cs");
+            }
+        }
+
+        public static void PacketCopy(string fileName, string[] args)
+        {
+            if (args.Length < 3)
+                return;
+
+            for (int i = 1; i < args.Length; i++)
+            {
+                File.Copy(fileName, $"{args[i]}/{fileName}", true);
+            }
+        }
+
+        public static void PacketManagerCopy(string fileName, string path)
+        {
+            File.Copy(fileName, $"{path}/{fileName}", true);
         }
 
         public static void ParsePacket(XmlReader r)

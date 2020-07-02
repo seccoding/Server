@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <!-- 
 (PDL)Packet Definition List
-PacketName 에 C_가 붙으면 Client -> Server (서버가 처리)
-              S_가 붙으면 Server -> Client (클라이언트가 처리)
+usage="Client" : Client -> Server (서버가 처리)
+usage="Server" : Server -> Client (클라이언트가 처리)
 -->
 <PDL>
   <packet name="ClientChat" usage="Client">
