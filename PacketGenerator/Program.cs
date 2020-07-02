@@ -88,7 +88,6 @@ namespace PacketGenerator
             for (int i = 1; i < args.Length; i++)
             {
                 PacketCopy(fileName, args[i]);
-                File.Copy(fileName, $"{args[i]}/{fileName}", true);
             }
         }
 
