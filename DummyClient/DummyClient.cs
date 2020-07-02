@@ -18,7 +18,7 @@ namespace DummyClient
             IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소
 
             Connector connector = new Connector();
-            connector.Connect(endPoint, () => SessionManager.Instance.Generate(), 100);
+            connector.Connect(endPoint, () => SessionManager.Instance.Generate(), 200);
 
             while (true)
             {  
