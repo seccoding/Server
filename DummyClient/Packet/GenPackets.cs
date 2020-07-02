@@ -11,14 +11,14 @@ public enum PacketID
 	
 }
 
-interface IPacket
+public interface IPacket
 {
 	ushort Protocol { get; }
 	void Read(ArraySegment<byte> segment);
 	ArraySegment<byte> Write();
 }
 
-class ClientChat : IPacket
+public class ClientChat : IPacket
 {
     public string chat;
 	public class Test
@@ -86,7 +86,7 @@ class ClientChat : IPacket
         return SendBufferHelper.Close(count);
     }
 }
-class ServerChat : IPacket
+public class ServerChat : IPacket
 {
     public int playerId;
 	public string chat;
