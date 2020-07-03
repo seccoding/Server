@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using UnityEngine;
 
 namespace ServerCore
 {
@@ -29,6 +28,8 @@ namespace ServerCore
                 args.RemoteEndPoint = endPoint;
                 args.UserToken = socket;
 
+                Debug.Log($"연결 시도");
+
                 RegisterConnect(args);
             }
         }
@@ -40,21 +41,27 @@ namespace ServerCore
                 return;
 
             bool pending = socket.ConnectAsync(args);
+
             if (pending == false)
                 OnConnectedComplete(null, args);
         }
 
         void OnConnectedComplete(object sender, SocketAsyncEventArgs args)
         {
+            
             if (args.SocketError == SocketError.Success)
             {
+                Debug.Log($"연결 성공");
+
                 Session session = _sessionFactory.Invoke();
                 session.Start(args.ConnectSocket);
                 session.OnConnected(args.RemoteEndPoint);
 
             }
             else
-                Console.WriteLine($"OnConnectedComplete Failed : {args.SocketError}");
+            {
+                Debug.Log($"OnConnectedComplete Failed : {args.SocketError}");
+            }
         }
     }
 }

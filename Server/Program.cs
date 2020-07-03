@@ -21,8 +21,10 @@ namespace Server
 
         static void Main(string[] args)
         {
-            // DNS (Domain Name Server)
-            string host = Dns.GetHostName(); // Local PC 의 Host Name
+            //string host = Dns.GetHostName(); // Local PC 의 Host Name
+            string host = "192.168.0.40"; // Local PC 의 Host Name
+            Console.WriteLine($"Host: {host}");
+
             IPHostEntry ipHost = Dns.GetHostEntry(host);
             IPAddress ipAddress = ipHost.AddressList[0]; // 여러개 중 하나. Domain 하나에 여러개의 IP가 물린다.
             IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소

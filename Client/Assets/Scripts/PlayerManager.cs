@@ -10,6 +10,7 @@ public class PlayerManager
 
     public void Add(PlayerList packet)
     {
+        Debug.Log("Add1");
         // Prefab
         Object obj = Resources.Load("Player");
 
@@ -20,6 +21,7 @@ public class PlayerManager
             // 내 캐릭터
             if (p.isSelf)
             {
+                Debug.Log("Add2 Self");
                 MyPlayer myPlayer = go.AddComponent<MyPlayer>();
                 myPlayer.PlayerId = p.playerId;
                 myPlayer.transform.position = new Vector3(p.position.posX, p.position.posY, p.position.posZ);
@@ -27,6 +29,7 @@ public class PlayerManager
             }
             else
             {
+                Debug.Log("Add2 Other");
                 Player player = go.AddComponent<Player>();
                 player.PlayerId = p.playerId;
                 player.transform.position = new Vector3(p.position.posX, p.position.posY, p.position.posZ);
@@ -37,12 +40,15 @@ public class PlayerManager
 
     public void Move(BroadcastMove packet)
     {
+        Debug.Log("Move1");
         if (_myPlayer.PlayerId == packet.playerId)
         {
+            Debug.Log("Move2 Self");
             _myPlayer.transform.position = new Vector3(packet.position.posX, packet.position.posY, packet.position.posZ);
         }
         else 
         {
+            Debug.Log("Move2 Other");
             Player player = null;
             if (_players.TryGetValue(packet.playerId, out player))
             {
@@ -53,9 +59,11 @@ public class PlayerManager
 
     public void EnterGame(BroadcastEnterGame packet)
     {
+        Debug.Log("Enter1");
         if (packet.playerId == _myPlayer.PlayerId)
             return;
 
+        Debug.Log("Enter2");
         Object obj = Resources.Load("Player");
         GameObject go = Object.Instantiate(obj) as GameObject;
 
