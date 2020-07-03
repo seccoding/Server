@@ -24,10 +24,10 @@ namespace Server
             //string host = Dns.GetHostName(); // Local PC 의 Host Name
             string host = "192.168.0.40"; // Local PC 의 Host Name
             Console.WriteLine($"Host: {host}");
-
             IPHostEntry ipHost = Dns.GetHostEntry(host);
             IPAddress ipAddress = ipHost.AddressList[0]; // 여러개 중 하나. Domain 하나에 여러개의 IP가 물린다.
-            IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777); // 최종 주소
+
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 17654); // 최종 주소
 
             // 연결 Pipe 생성
             _listener.Init(endPoint, () => SessionManager.Instance.Generate<ClientSession>());

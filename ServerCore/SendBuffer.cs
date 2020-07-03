@@ -13,6 +13,9 @@ namespace ServerCore
 
         public static ArraySegment<byte> Open(int reserveSize)
         {
+            if (CurrentBuffer == null)
+                CurrentBuffer = new ThreadLocal<SendBuffer>(() => null);
+
             // 데이터가 없다면 새롭게 생성
             if (CurrentBuffer.Value == null)
                 CurrentBuffer.Value = new SendBuffer(ChunkSize);
@@ -26,7 +29,11 @@ namespace ServerCore
 
         public static ArraySegment<byte> Close(int usedSize)
         {
-            return CurrentBuffer.Value.Close(usedSize);
+            ArraySegment<Byte> buffer = CurrentBuffer.Value.Close(usedSize);
+            CurrentBuffer.Value = null;
+            CurrentBuffer = null;
+
+            return buffer;
         }
     }
 

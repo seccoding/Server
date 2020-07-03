@@ -22,10 +22,14 @@ public class NetworkManager : MonoBehaviour
         string host = "192.168.0.40"; // Local PC 의 Host Name
 
         IPHostEntry ipHost = Dns.GetHostEntry(host);
-        IPAddress ipAddress = ipHost.AddressList[0]; // 여러개 중 하나. Domain 하나에 여러개의 IP가 물린다.
-        int ipPort = Convert.ToInt16(7777);
-
-        IPEndPoint endPoint = new IPEndPoint(ipAddress, ipPort); // 최종 주소
+        IPAddress ipAddress = null;
+        foreach (IPAddress address in ipHost.AddressList)
+        {
+            if(address.ToString().Contains("."))
+                ipAddress = address;
+            Debug.Log($"Address : {ipAddress}");
+        }
+        IPEndPoint endPoint = new IPEndPoint(ipAddress, 17654); // 최종 주소
         
         Connector connector = new Connector();
         connector.Connect(endPoint, () => _session, 1);

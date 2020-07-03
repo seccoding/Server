@@ -25,7 +25,8 @@ namespace Server
 
         public override void OnConnected(EndPoint endPoint)
         {
-            Console.WriteLine($"OnConnected: {endPoint}");
+            IPEndPoint ipEndPoint = endPoint as IPEndPoint;
+            Console.WriteLine($"OnConnected: {ipEndPoint.Address}:{ipEndPoint.Port}");
             Server.Room.Push(() => Server.Room.Enter(this));
         }
 
@@ -38,7 +39,9 @@ namespace Server
                 room.Push(() => room.Leave(this));
                 Room = null;
             }
-            Console.WriteLine($"OnDisconnected: {endPoint}");
+
+            IPEndPoint ipEndPoint = endPoint as IPEndPoint;
+            Console.WriteLine($"OnDisconnected: {ipEndPoint.Address}:{ipEndPoint.Port}");
         }
 
         // 클라이언트와 서버가 미리 정한 규약대로 패킷을 송/수신해야 함.

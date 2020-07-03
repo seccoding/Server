@@ -38,7 +38,7 @@ public class PacketManager
         if (_makeFunc.TryGetValue(packetId, out func) )
         {
             IPacket packet = func.Invoke(session, buffer);
-
+            buffer = null;
             if (onRecvCallback != null)
                 onRecvCallback.Invoke(session, packet);
             else

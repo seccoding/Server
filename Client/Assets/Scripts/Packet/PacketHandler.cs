@@ -11,7 +11,7 @@ class PacketHandler
         BroadcastEnterGame pkt = packet as BroadcastEnterGame;
         ServerSession serverSession = session as ServerSession;
 
-        Debug.Log($"BroadcastEnterGameHandler {packet}");
+        Debug.Log($"BroadcastEnterGameHandler {pkt}");
         PlayerManager.Instance.EnterGame(pkt);
     }
 
@@ -20,7 +20,7 @@ class PacketHandler
         BroadcastLeaveGame pkt = packet as BroadcastLeaveGame;
         ServerSession serverSession = session as ServerSession;
 
-        Debug.Log($"BroadcastLeaveGameHandler {packet}");
+        Debug.Log($"BroadcastLeaveGameHandler {pkt}");
         PlayerManager.Instance.LeaveGame(pkt);
     }
 
@@ -28,7 +28,7 @@ class PacketHandler
     {
         PlayerList pkt = packet as PlayerList;
         ServerSession serverSession = session as ServerSession;
-        Debug.Log($"PlayerListHandler {packet}");
+        Debug.Log($"PlayerListHandler {pkt}");
         PlayerManager.Instance.Add(pkt);
     }
 
@@ -36,7 +36,7 @@ class PacketHandler
     {
         BroadcastMove pkt = packet as BroadcastMove;
         ServerSession serverSession = session as ServerSession;
-        Debug.Log($"BroadcastMoveHandler {packet}");
+        Debug.Log($"BroadcastMoveHandler {pkt}");
         PlayerManager.Instance.Move(pkt);
     }
 
